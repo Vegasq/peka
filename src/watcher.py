@@ -4,6 +4,7 @@ import re
 import sqlite3
 import time
 import base64
+import logging
 
 
 chat_url = "http://chat.sc2tv.ru/memfs/channel-moderator.json"
@@ -26,15 +27,18 @@ class DB(object):
                 raise sqlite3.OperationalError(e)
 
     def add(self, message):
-        print('add message')
+        logging.debug('Add message to DB.')
         if self.is_exist(message):
             return
+
+        msg_encoded = base64.b64encode(message['message'].encode())
+
         self.c.execute(
             "INSERT INTO messages VALUES (?, ?, ?, ?)", (
                 int(time.time()),
                 message['name'],
                 message['message'],
-                base64.b64encode(message['message']))
+                msg_encoded)
         )
         self.conn.commit()
 
@@ -49,6 +53,20 @@ class DB(object):
 class Chat(object):
     def __init__(self):
         self.db = DB()
+
+    def is_header_valid(self, headers):
+        if (
+            'content-type' in headers and
+            headers['content-type'] not in allowed_types or
+            'content-length' in headers and
+            'content-length' in headers and
+            int(headers['content-length']) > 1000000 or
+            'content-length' in headers and
+            'content-length' in headers and
+            int(headers['content-length']) < 10000
+        ):
+            return True
+        return False
 
     def get_chat(self):
         # Get chat feed from sc2tv
@@ -79,18 +97,10 @@ class Chat(object):
                     continue
 
                 # Validate image headers
-                if (
-                    'content-type' in headers and
-                    headers['content-type'] not in allowed_types or
-                    'content-length' in headers and
-                    'content-length' in headers and
-                    int(headers['content-length']) > 1000000 or
-                    'content-length' in headers and
-                    'content-length' in headers and
-                    int(headers['content-length']) < 10000
-                ):
+                if (self.is_header_valid(headers)):
                     continue
 
+                print('Add new message')
                 self.db.add({
                     'name': message['name'],
                     'message': url_finder.findall(message['message'])[0]
@@ -101,4 +111,4 @@ def run_watcher():
     chat = Chat()
     while True:
         chat.get_chat()
-        time.sleep(1)
+        time.sleep(2)

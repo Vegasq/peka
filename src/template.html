@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+        <link rel="stylesheet" href="static/lightbox/css/lightbox.css">
+        <link rel="stylesheet" href="static/bootstrap/css/bootstrap.css">
+
+        <title>P3KA</title>
+        <style>
+            #posts {
+            }
+
+            ul#posts img {
+                display: block;
+                overflow: hidden;
+                width: 250px;
+                height: 320px;
+                float: left;
+                margin: 10px;
+            }
+            ul#posts {
+               list-style-type: none;
+            }
+
+            #pager {
+                width: 90%;
+                margin: 0 auto;
+            }
+            #pager a {
+                display: block;
+                float: left;
+                padding: 10px;
+                margin: 10px;
+                border: 1px solid gray;
+            }
+
+            .card-img-top {
+                border-radius: .25rem .25rem 0 0;
+                height: 24em;
+                min-width: 100%;
+            }
+            .card {
+                overflow: hidden;
+            }
+        </style>
+
+    </head>
+    <body>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">ttl</div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                {% for post in data %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <a data-lightbox="roadtrip" href="{{post.url}}">
+                                <img class="card-img-top" src="{{post.url}}" alt="">
+                            </a>
+                            <div class="card-block">
+                                <p class="card-text">{{post.name}}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <nav>
+                        <ul class="pagination">
+                            {% for n in pages %}
+                                <li><a href="index{{ n }}.html">{{ n }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="static/bootstrap/js/bootstrap.min.js"></script>
+        <script src="static/lightbox/js/lightbox.min.js"></script>
+
+        <script>
+            lightbox.option({
+              'resizeDuration': 200,
+              'wrapAround': true
+            })
+
+
+            document.getElementsByClassName('lb-next')[0].addEventListener(
+                'click',
+                function(){
+                    if (document.getElementsByClassName('lb-number')[0].innerHTML == "Image 20 of 20"){
+                        var path = window.location.href.split('index');
+                        var prefix = path[0];
+                        var postfix = path[1].split('.')[1];
+                        var pagenum = parseInt(path[1].split('.')[0]) + 1;
+                        window.location.href = prefix + 'index' + pagenum + '.' + postfix;
+                    }
+            })
+        </script>
+
+    </body>
+</html>
